@@ -17,6 +17,9 @@ con <- dbConnect(RMySQL::MySQL(),
                  host = "127.0.0.1",
                  port = 3306)
 
+################
+## online data
+
 # retrieve some stats for German online data
 query.stats <- "SELECT crawl, COUNT(DISTINCT md.d_id) as n_pages, COUNT(DISTINCT md.top_domain) as n_domains
                 FROM coab.climate_online_metadata as md 
@@ -60,8 +63,33 @@ query.ondata <- "SELECT md.d_id, md.page_id, md.crawl, md.country_id, md.issue, 
                  AND md.has_keyword = 1;"
 data.ondata <- dbGetQuery(con, query.ondata)
 
-# delete data from faulty crawls
-data.ondata.good <- filter(data.ondata, crawl %in% good.crawls)
+# define proper class of columns 
+data.ondata$crawl <- as.numeric(data.ondata$crawl)
 
-# save clean online data
-save(data.ondata.good, file = "data/data_online_good.RData")
+# delete data from faulty crawls
+data.ondata <- filter(data.ondata, crawl %in% good.crawls)
+
+# save online data
+save(data.ondata, file = "data/data_online.RData")
+
+#################
+## offline data
+
+# retrieve German massmedia data
+query.offdata <- "SELECT md.d_id, ns.Nsource_ID as nsource_id, md.country_id, md.issue, md.language, md.has_keyword, d.text,
+                  ns.Newspaper as newspaper, ns.Date as date
+                  FROM coab.climate_massmedia_metadata as md
+                  LEFT JOIN coab.climate_massmedia_documents as d on md.d_id = d.d_id
+                  LEFT JOIN toolssql1.Nsource as ns on md.page_id = ns.Nsource_ID
+                  WHERE md.country_id = 1
+                  AND md.issue = 1
+                  AND md.has_keyword = 1
+                  AND ns.Date >= '2012-07-01'
+                  AND ns.Date <= '2014-06-30';"
+data.offdata <- dbGetQuery(con, query.offdata)
+
+# define proper class of columns 
+data.offdata$date <- as.Date(data.offdata$date)
+
+# save offline data
+save(data.offdata, file = "data/data_offline.RData")
