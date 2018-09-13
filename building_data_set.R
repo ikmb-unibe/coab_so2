@@ -77,6 +77,12 @@ dfm.online@docvars <- docvars.online
 # save online dfm (raw)
 save(dfm.online, file = "data/dfm_online.RData")
 
+# make online dfm without duplicates
+dfm.online.nd <- dfm_subset(dfm.online, duplicate == 0)
+
+# save online dfm withouth duplicates
+save(dfm.online.nd, file = "data/dfm_online_nd.RData")
+
 ## make offline dfm ##
 
 # load offline data
@@ -99,3 +105,9 @@ dfm.combined <- dfm_compress(rbind(dfm.online, dfm.offline), margin = "features"
 
 # save combined dfm (raw)
 save(dfm.combined, file = "data/dfm_combined.RData")
+
+# combine online and offline dfm
+dfm.combined.nd <- dfm_compress(rbind(dfm.online.nd, dfm.offline), margin = "features")
+
+# save combined dfm (raw)
+save(dfm.combined.nd, file = "data/dfm_combined_nd.RData")

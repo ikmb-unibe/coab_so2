@@ -24,6 +24,10 @@ load(dfm_en_translated)
 dfm_online <- url("https://campuscloud.unibe.ch:443/ssf/s/readFile/share/24117/8994127936163193836/publicLink/dfm_online.RData")
 load(dfm_online)
 
+# dfm online data without duplicates
+dfm_online_nd <- url("https://campuscloud.unibe.ch:443/ssf/s/readFile/share/24120/-3060638291331660502/publicLink/dfm_online_nd.RData")
+load(dfm_online_nd)
+
 # dfm offline data
 dfm_offline <- url("https://campuscloud.unibe.ch:443/ssf/s/readFile/share/24118/7672670824778788549/publicLink/dfm_offline.RData")
 load(dfm_offline)
@@ -31,4 +35,8 @@ load(dfm_offline)
 # dfm combined
 dfm_combined <- url("https://campuscloud.unibe.ch:443/ssf/s/readFile/share/24119/-2808791588121412080/publicLink/dfm_combined.RData")
 load(dfm_combined)
+
+# dfm combined without duplicates
+dfm_combined_nd <- url("https://campuscloud.unibe.ch:443/ssf/s/readFile/share/24121/-5995487485071316790/publicLink/dfm_combined_nd.RData")
+load(dfm_combined_nd)
 ```
