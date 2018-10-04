@@ -40,4 +40,13 @@ load(dfm_combined)
 # dfm combined without duplicates
 dfm_combined_nd <- url("https://campuscloud.unibe.ch:443/ssf/s/readFile/share/24121/-5995487485071316790/publicLink/dfm_combined_nd.RData")
 load(dfm_combined_nd)
+
+# stm result (selected)
+stm_k20_select <- url("https://campuscloud.unibe.ch:443/ssf/s/readFile/share/24680/-7095015131087356059/publicLink/stm_k20_select.RData")
+load(stm_k20_select)
+
+# topdocs
+topdocs <- url("https://campuscloud.unibe.ch:443/ssf/s/readFile/share/24681/8474113780865304981/publicLink/topdocs.csv")
+load(stopdocs)
+
 ```
