@@ -1,7 +1,8 @@
 # COAB: Spill-over 2 / Agenda-setting paper
 
+## Links to data (not included in GitHub repository)
+
 ```
-# links to data (not included in GitHub repository)
 # just copy+paste code to load data set
 
 # raw online data
