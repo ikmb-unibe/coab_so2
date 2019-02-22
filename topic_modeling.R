@@ -32,24 +32,25 @@ pdf("tm/determine_k.pdf")
 plot(determine_k)
 dev.off()
 
-# estimate stm (K = 20)
-stm.k20 <- selectModel(documents = stm$documents, vocab = stm$vocab, K = 20, runs = 20, max.em.its = 300, init.type = "LDA", seed = 1234, verbose = TRUE)
-save(stm.k20, file = "tm/stm_k20.RData")
+# estimate stm (K = 25)
+load("data/stm_dfm.RData")
+stm.k25 <- selectModel(documents = stm$documents, vocab = stm$vocab, K = 25, runs = 20, max.em.its = 300, init.type = "LDA", seed = 1234, verbose = TRUE)
+save(stm.k25, file = "tm/stm_k25.RData")
 
 # select best model
-pdf("tm/select_model.pdf")
-plotModels(stm.k20)
+pdf("tm/select_model_k25.pdf")
+plotModels(stm.k25)
 dev.off()
-stm.k20.sel <- stm.k20$runout[[4]]
-save(stm.k20.sel, file = "tm/stm_k20_select.RData")
+stm.k25.sel <- stm.k25$runout[[1]]
+save(stm.k25.sel, file = "tm/stm_k25_select.RData")
 
 # get topic topwords (n = 10)
-topwords <- data.frame(t_id = paste0("t_", 1:20),
-                       topwords = apply(sageLabels(stm.k20.sel, n = 10)$marginal$prob, 1, paste, collapse = ", "))
-write.csv(topwords, file = "tm/topwords.csv", row.names = FALSE)
+topwords <- data.frame(t_id = paste0("t_", 1:25),
+                       topwords = apply(sageLabels(stm.k25.sel, n = 10)$marginal$prob, 1, paste, collapse = ", "))
+write.csv(topwords, file = "tm/topwords_k25.csv", row.names = FALSE)
 
 # prepare documents for selection of topdocs
-data_online <- url("https://campuscloud.unibe.ch:443/ssf/s/readFile/share/24056/-1422573848356377275/publicLink/data_online.RData")
+data_online <- url("https://campuscloud.unibe.ch:443/ssf/s/readFile/share/24850/8558498293618557092/publicLink/data_online.RData")
 load(data_online)
 data_offline <- url("https://campuscloud.unibe.ch:443/ssf/s/readFile/share/24081/-6801514032582368813/publicLink/data_offline.RData")
 load(data_offline)
@@ -59,5 +60,5 @@ texts <- filter(texts, d_id %in% names(stm$documents))
 texts <- texts[match(names(stm$documents), texts$d_id), ]
 
 # get topdocs (n = 10, thresh = 0.6)
-topdocs <- get_topdocs(stm.k20.sel, texts, 10, 0.6)
-write.csv(topdocs, file = "tm/topdocs.csv", row.names = FALSE)
+topdocs <- get_topdocs(stm.k25.sel, texts, 10, 0.6)
+write.csv(topdocs, file = "tm/topdocs_k25.csv", row.names = FALSE)
