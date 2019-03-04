@@ -1,10 +1,8 @@
-####################################
-## building of skeptics data set  ##
-####################################
+#######################################
+## build skeptics data set (online)  ##
+#######################################
 
 ifelse(!require("tidyverse"), install.packages("tidyverse"), require(tidyverse))
-ifelse(!require("quanteda"), install.packages("quanteda"), require(quanteda))
-source("functions/make_corpus.R")
 
 options(stringsAsFactors = FALSE)
 
@@ -84,10 +82,26 @@ el_actors <- el_pages %>%
            s_actor_country, t_actor_country) %>%
   summarise(n_links = n())
 
-# How many German actors in the net?
+# how many (German) actors in the net?
 el_actors %>%
   group_by(crawl) %>%
   filter(t_actor_country == 1) %>%
   summarise(sum = n_distinct(t_organisation))
 
 save(el_pages, el_actors, file = "data/el_filtered.RData")
+
+# filter pages
+good_ids <- unique(c(el_pages$s_page_id, el_pages$t_page_id))
+
+pages <- data.ondata %>%
+  filter(page_id %in% good_ids) %>%
+  mutate(duplicate = ifelse(duplicate_id != d_id & duplicate_id %in% .$d_id, 1, 0)) %>%
+  mutate(position_new = case_when(actor_position == 2 ~ 2,
+                                  actor_position == 10 ~ 1,
+                                  actor_position == 11 ~ 1,
+                                  actor_position == 3 ~ 99,
+                                  actor_position == 4 ~ 99,
+                                  actor_position == 99 ~ 99)) %>%
+  select(d_id, duplicate_id, duplicate, page_id, crawl, language, text, organisation, actor_type, actor_country, position_new, cooperation_climate)
+
+save(pages, file = "data/data_online_filtered.RData")
