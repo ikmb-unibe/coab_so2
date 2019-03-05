@@ -2,7 +2,7 @@
 ## topic model ##
 #################
 
-ifelse(!require("stm"), install.packages("stm"), require("stm"))
+ifelse(!require("stm"), install.packages("stm"), require(stm))
 ifelse(!require("tidyverse"), install.packages("tidyverse"), require(tidyverse))
 source("functions/get_topdocs.R")
 
