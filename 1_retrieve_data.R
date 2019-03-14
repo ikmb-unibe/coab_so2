@@ -2,8 +2,8 @@
 ## retrieve data ##
 ###################
 
-ifelse(!require("tidyverse"), install.packages("tidyverse"), require(tidyverse))
-ifelse(!require("RMySQL"), install.packages("RMySQL"), require(RMySQL))
+ifelse(!require(tidyverse), install.packages("tidyverse"), require(tidyverse))
+ifelse(!require(RMySQL), install.packages("RMySQL"), require(RMySQL))
 
 options(stringsAsFactors = FALSE)
 
@@ -66,8 +66,10 @@ data.ondata <- dbGetQuery(con, query.ondata)
 # define proper class of columns 
 data.ondata$crawl <- as.numeric(data.ondata$crawl)
 
-# delete data from faulty crawls
-data.ondata <- filter(data.ondata, crawl %in% good.crawls)
+# delete data from faulty crawls and remove duplicated d_id
+data.ondata <- data.ondata %>%
+  filter(crawl %in% good.crawls) %>%
+  distinct(d_id, .keep_all = TRUE)
 
 # save online data
 save(data.ondata, file = "data/data_online.RData")
@@ -124,6 +126,9 @@ data.offdata <- dbGetQuery(con, query.offdata)
 
 # define proper class of columns 
 data.offdata$date <- as.Date(data.offdata$date)
+
+# remove duplicated d_id
+data.offdata <- distinct(data.offdata, d_id, .keep_all = TRUE)
 
 # save offline data
 save(data.offdata, file = "data/data_offline.RData")

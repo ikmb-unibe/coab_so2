@@ -2,8 +2,8 @@
 ## Prep data for topic modeling ##
 ##################################
 
-ifelse(!require("tidyverse"), install.packages("tidyverse"), require(tidyverse))
-ifelse(!require("quanteda"), install.packages("quanteda"), require(quanteda))
+ifelse(!require(tidyverse), install.packages("tidyverse"), require(tidyverse))
+ifelse(!require(quanteda), install.packages("quanteda"), require(quanteda))
 source("functions/make_corpus.R")
 source("functions/dfm_splitgrams.R")
 source("functions/do_preprocessing.R")
@@ -37,7 +37,7 @@ feat_translated <- feat_en %>%
 dfm_en@Dimnames$features <- tolower(feat_translated$translated)
 
 # split ngrams
-dfm_en <- dfm_splitgrams(dfm_en, concatenator = " ")
+dfm_en <- dfm_splitgrams(dfm_en, " ")
 
 # make a dfm for german documents
 corpus_de <- make_online_corpus(pages_de)
@@ -49,15 +49,14 @@ dfm_de <- dfm(tokens_de, tolower = TRUE, stem = FALSE, verbose = TRUE)
 dfm_online <- dfm_compress(rbind(dfm_de, dfm_en), margin = "features")
 
 # add docvars again
-docvars_online <- rbind(dfm_de@docvars, dfm_en@docvars)
-docvars_online <- docvars_online[match(dfm_online@Dimnames$docs, docvars_online$d_id),]
-dfm_online@docvars <- docvars_online
+dfm_online@docvars <- rbind(dfm_de@docvars, dfm_en@docvars)
 
 # save online dfm (raw)
 save(dfm_online, file = "data/dfm_online.RData")
 
 # make online dfm without duplicates
 dfm_online_nd <- dfm_subset(dfm_online, duplicate == 0)
+dfm_online_d <- dfm_subset(dfm_online, duplicate == 1)
 
 # save online dfm withouth duplicates
 save(dfm_online_nd, file = "data/dfm_online_nd.RData")
@@ -74,16 +73,20 @@ tokens_offline <- tokens(corpus_offline, what = "word", remove_punct = TRUE, rem
 dfm_offline <- dfm(tokens_offline, tolower = TRUE, stem = FALSE, verbose = TRUE)
 
 # save offline dfm (raw)
-save(dfm.offline, file = "data/dfm_offline.RData")
+save(dfm_offline, file = "data/dfm_offline.RData")
 
 #########################################
 # combine online and offline data for tm
 
 # combine online and offline dfm (all)
 dfm_combined <- dfm_compress(rbind(dfm_online, dfm_offline), margin = "features")
+dfm_combined@docvars <- rbind(select(dfm_online@docvars, d_id, short_text), 
+                              select(dfm_offline@docvars, d_id, short_text))
 
 # combine online and offline dfm (without duplicates)
 dfm_combined_nd <- dfm_compress(rbind(dfm_online_nd, dfm_offline), margin = "features")
+dfm_combined_nd@docvars <- rbind(select(dfm_online_nd@docvars, d_id, short_text),
+                                 select(dfm_offline@docvars, d_id, short_text))
 
 # save combined dfm (raw)
 save(dfm_combined, dfm_combined_nd, file = "data/dfm_combined.RData")
@@ -101,6 +104,6 @@ save(dfm_combined, dfm_combined_nd, file = "data/dfm_combined.RData")
 dfm_prep <- do_preprocessing(dfm_combined_nd)
 
 # convert dfm to stm format
-dfm_prep_converted <- convert(dfm_prep, to = "stm")
+dfm_prep_converted <- convert(dfm_prep, to = "stm", docvars = docvars(dfm_prep))
 
 save(dfm_prep_converted, file = "data/dfm_prep.RData")

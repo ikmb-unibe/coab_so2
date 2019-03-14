@@ -2,7 +2,7 @@
 ## build skeptics data set (online)  ##
 #######################################
 
-ifelse(!require("tidyverse"), install.packages("tidyverse"), require(tidyverse))
+ifelse(!require(tidyverse), install.packages("tidyverse"), require(tidyverse))
 
 options(stringsAsFactors = FALSE)
 
@@ -28,23 +28,6 @@ link_data <- data.ondata.links %>%
                                     t_actor_position == 3 ~ 99,
                                     t_actor_position == 4 ~ 99,
                                     t_actor_position == 99 ~ 99))
-
-# get skeptical legacy media
-media_s <- link_data %>%
-  filter(s_organisation %in% unique(data.ondata$organisation)) %>%
-  filter(s_actor_type == 4, legacy == 1) %>%
-  filter(s_position_new == 1)
-media_t <- link_data %>%
-  filter(t_organisation %in% unique(data.ondata$organisation)) %>%
-  filter(t_actor_type == 4) %>%
-  filter(t_position_new == 1)
-media <- data.frame(organisation = c(media_s$s_organisation, media_t$t_organisation),
-                    domain = c(media_s$s_domain, media_t$t_domain)) %>%
-  group_by(organisation, domain) %>%
-  summarise(n()) %>%
-  select(organisation, domain)
-
-write_csv(media, path = "data/media_to_code.csv")
 
 # simulating first step of crawler (seed -> linked organisations)
 skept_seeds <- c("Analyse + Aktion", "Klimaüberraschung", "EIKE - Europäisches Institut für Klima und Energie", "klimaskeptiker.info")

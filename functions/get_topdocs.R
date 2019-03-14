@@ -7,7 +7,7 @@ get_topdocs <- function (model, texts, n.docs, threshold) {
     #get documents fulfilling the requirements (treshhold, n.docs)
     thoughts <- findThoughts(model = model, texts = texts$text, topics = i, n = 500, thres = threshold)
     df <- as.data.frame(c(thoughts$index, thoughts$docs))
-    if(nrow(df) <= 10){
+    if(nrow(df) <= n.docs){
       df <- df
     } else {
       df <- sample_n(df, n.docs)
