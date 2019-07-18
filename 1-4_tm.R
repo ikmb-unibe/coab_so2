@@ -61,7 +61,7 @@ write.csv(topwords_k30, file = "tm/topwords_k30.csv", row.names = FALSE)
 model <- stm_k20_sel # which model?
 n_docs <- 1 # how many documents?
 thresh <- 0.6 # What threshold? (topic probability)
-topic <- 1 # which topic?
+topic <- 10 # which topic?
 
 # Wordcloud anzeigen
 cloud(model, topic = topic, max.words = 50)

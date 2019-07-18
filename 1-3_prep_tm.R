@@ -106,4 +106,4 @@ dfm_prep <- do_preprocessing(dfm_combined_nd)
 # convert dfm to stm format
 dfm_prep_converted <- convert(dfm_prep, to = "stm", docvars = docvars(dfm_prep))
 
-save(dfm_prep_converted, file = "data/dfm_prep.RData")
+save(dfm_prep, dfm_prep_converted, file = "data/dfm_prep.RData")
