@@ -2,8 +2,8 @@
 ## retrieve data ##
 ###################
 
-ifelse(!require("tidyverse"), install.packages("tidyverse"), require(tidyverse))
-ifelse(!require("RMySQL"), install.packages("RMySQL"), require(RMySQL))
+ifelse(!require(tidyverse), install.packages("tidyverse"), require(tidyverse))
+ifelse(!require(RMySQL), install.packages("RMySQL"), require(RMySQL))
 
 options(stringsAsFactors = FALSE)
 
@@ -17,8 +17,8 @@ con <- dbConnect(RMySQL::MySQL(),
                  host = "127.0.0.1",
                  port = 3306)
 
-################
-## online data
+######################
+## online data: pages
 
 # retrieve some stats for German online data
 query.stats <- "SELECT crawl, COUNT(DISTINCT md.d_id) as n_pages, COUNT(DISTINCT md.top_domain) as n_domains
@@ -66,11 +66,47 @@ data.ondata <- dbGetQuery(con, query.ondata)
 # define proper class of columns 
 data.ondata$crawl <- as.numeric(data.ondata$crawl)
 
-# delete data from faulty crawls
-data.ondata <- filter(data.ondata, crawl %in% good.crawls)
+# delete data from faulty crawls and remove duplicated d_id
+data.ondata <- data.ondata %>%
+  filter(crawl %in% good.crawls) %>%
+  distinct(d_id, .keep_all = TRUE)
 
 # save online data
 save(data.ondata, file = "data/data_online.RData")
+
+######################
+## online data: links
+
+# retrieve link data
+query.ondata.links <- "SELECT pl.Crawl_Nr as crawl,
+                              pgs.Page_ID as s_page_id, pgt.Page_ID as t_page_id, 
+                              sts.Host as s_domain, stt.Host as t_domain,
+                              dos.organisation as s_organisation, dot.organisation as t_organisation,
+                              dcas.Actor_type as s_actor_type, dcat.Actor_type as t_actor_type,
+                              dcas.Actor_country as s_actor_country, dcat.Actor_country as t_actor_country,
+                              dccs.Actor_position as s_actor_position, dcct.Actor_position as t_actor_position
+                       FROM toolssql1.Pages_links as pl
+                       LEFT JOIN toolssql1.Pages as pgs on pl.Source_Page_ID = pgs.Issuecrawl_Page_ID
+                       LEFT JOIN toolssql1.Pages as pgt on pl.Target_Page_ID = pgt.Issuecrawl_Page_ID
+                       LEFT JOIN toolssql1.Sites as sts on pgs.Site_ID = sts.Site_ID
+                       LEFT JOIN toolssql1.Sites as stt on pgt.Site_ID = stt.Site_ID
+                       LEFT JOIN toolssql1.Domain_Coding_All as dcas on sts.Host = dcas.Domain
+                       LEFT JOIN toolssql1.Domain_Coding_Climate as dccs on sts.Host = dccs.Domain
+                       LEFT JOIN toolssql1.Domain_Coding_All as dcat on stt.Host = dcat.Domain
+                       LEFT JOIN toolssql1.Domain_Coding_Climate as dcct on stt.Host = dcct.Domain
+                       LEFT JOIN toolssql1.Domain_Organisation as dos on sts.Host = dos.domain
+                       LEFT JOIN toolssql1.Domain_Organisation as dot on stt.Host = dot.domain
+                       WHERE pl.Country_ID = 1
+                       AND pl.Issue_ID = 1;"
+data.ondata.links <- dbGetQuery(con, query.ondata.links)
+
+# define proper class of columns 
+data.ondata.links$crawl <- as.numeric(data.ondata.links$crawl)
+
+# delete data from faulty crawls
+data.ondata.links <- filter(data.ondata.links, crawl %in% good.crawls)
+
+save(data.ondata.links, file = "data/data_online_links.RData")
 
 #################
 ## offline data
@@ -90,6 +126,9 @@ data.offdata <- dbGetQuery(con, query.offdata)
 
 # define proper class of columns 
 data.offdata$date <- as.Date(data.offdata$date)
+
+# remove duplicated d_id
+data.offdata <- distinct(data.offdata, d_id, .keep_all = TRUE)
 
 # save offline data
 save(data.offdata, file = "data/data_offline.RData")

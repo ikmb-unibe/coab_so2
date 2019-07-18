@@ -1,5 +1,7 @@
 # function to split and duplicate counts in features containing the concatenator character "_"
-dfm_splitgrams <- function(x, concatenator = "_") {
+dfm_splitgrams <- function(x, concatenator) {
+  # get docvars
+  doc_vars <- docvars(x)
   # separate the unigrams
   x_unigrams <-  dfm_remove(x, concatenator, valuetype = "regex")
   # separate the ngrams
@@ -13,5 +15,8 @@ dfm_splitgrams <- function(x, concatenator = "_") {
   # assign the ngram dfm the feature names of the split ngrams
   colnames(x_split_ngrams) <- unlist(split_ngrams, use.names = FALSE)
   # return the column concatenation of unigrams and split ngrams
-  suppressWarnings(cbind(x_unigrams, x_split_ngrams))
+  dfm_nng <- dfm_compress(suppressWarnings(cbind(x_unigrams, x_split_ngrams)), margin = "features")
+  # add docvars again
+  dfm_nng@docvars <- doc_vars
+  return(dfm_nng)
 }

@@ -1,8 +1,6 @@
 do_preprocessing <- function(dfm) {
   # all to lower
   dfm <- dfm_tolower(dfm)
-  # split ngrams
-  dfm <- dfm_splitgrams(dfm_replace(dfm, featnames(dfm), gsub(" ", "_", featnames(dfm), fixed = TRUE), case_insensitive = FALSE))
   # removal of features with less than 3 characters
   dfm <- dfm_select(dfm, min_nchar = 3)
   # removal of stopwords
