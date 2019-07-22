@@ -35,9 +35,10 @@ jsd_df <- data.frame(month = as.character(names(theta_comp[[1]])[3:ncol(theta_co
 
 plt <- ggplot(data = jsd_df) +
   theme_minimal() +
-  geom_point(mapping = aes(x = month, y = jsd)) +
+  geom_point(mapping = aes(x = month, y = jsd), col = "#4daf4a") +
   geom_smooth(mapping = aes(x = month_c, y = jsd),
-              method = "lm", se = FALSE) +
+              method = "lm", se = FALSE, col = "#4daf4a") +
+  scale_colour_brewer(palette = "Set1") +
   labs(y = "Jensen-Shannon divergence [0,1]",
        x = "Month") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))

@@ -48,7 +48,7 @@ plt <- ggplot(data = comb) +
   geom_point(aes(x = month, y = share, color = type)) +
   geom_smooth(aes(x = id, y = share, color = type),
               method = "lm", se = FALSE) +
-  labs(y = "Share of skeptical sentences",
+  labs(y = "Share of skeptical sentences [0,1]",
        x = "Month") +
   theme_minimal() +
   scale_colour_brewer(palette = "Set1") +
