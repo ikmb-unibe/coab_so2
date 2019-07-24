@@ -3,7 +3,6 @@
 ########################
 
 ifelse(!require(tidyverse), install.packages("tidyverse"), require(tidyverse))
-#ifelse(!require(RMySQL), install.packages("RMySQL"), require(RMySQL))
 ifelse(!require(haven), install.packages("haven"), require(haven))
 
 options(stringsAsFactors = FALSE)
@@ -70,8 +69,8 @@ mips_corr <- read.csv("data/multi_mips.csv", encoding = "utf-8", header = TRUE) 
 load("data/data_online_filtered.RData")
 ne_on_raw <- read.csv("data/ne_on.csv", header = TRUE, encoding = "utf-8")
 
-crawl_month <- data.frame(crawl = 1:25,
-                          month = c(paste("2012", c("06", "07", "08", "09", "10", "11", "12"), sep = "-"),
+crawl_month <- data.frame(crawl = 2:25,
+                          month = c(paste("2012", c("07", "08", "09", "10", "11", "12"), sep = "-"),
                                     paste("2013", c("01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"), sep = "-"),
                                     paste("2014", c("01", "02", "03", "04", "05", "06"), sep = "-")))
 
@@ -84,18 +83,6 @@ ne_on <- ne_on_raw %>%
   left_join(crawl_month, by = "crawl") %>%
   select(d_id, month, ne_name, ne_pos, ne_scope, ne_country, ne_group, ne_party)  %>%
   mutate(type = "on")
-
-# Query to obtain named entities for online documents
-"SELECT  nets.d_id as d_id, nem.mip_name as ne_name, 
-nem.act_scope as ne_scope, nem.act_country as ne_country,
-nem.act_group as ne_group, nem.act_party as ne_party
-FROM coab.ne_to_sentence as nets
-LEFT JOIN coab.climate_online_metadata as com on nets.d_id = com.d_id
-LEFT JOIN coab.named_entities as ne on nets.ne_id = ne.ne_id
-LEFT JOIN coab.named_entities_metadata as nem on ne.name = nem.mip_name
-WHERE com.issue = 1
-AND com.country_id = 1
-AND com.has_keyword = 1;"
 
 # named entities for offline data
 
@@ -133,49 +120,85 @@ most_prom_na <- bind_rows(ne_off, ne_on) %>%
   arrange(desc(n)) %>%
   slice(1:200)
 
-# make plot
-# prepare plot
+# prepare plots: aggregate level
 off <- ne_off %>%
   select(month, ne_pos) %>%
   group_by(month, ne_pos) %>%
   count() %>%
-  spread(ne_pos, -month) %>%
+  mutate(n = ifelse(is.na(n), 0, n)) %>%
+  spread(key = ne_pos, value = n) %>%
   mutate(total = `1` + `2` + `99` + `<NA>`) %>%
-  mutate(skep_share_off = `1` / total) %>%
-  select(month, skep_share_off) %>%
-  rowid_to_column("id_off")
+  mutate(skep_share = `1` / total) %>%
+  select(month, skep_share) %>%
+  left_join(crawl_month, by = "month") %>%
+  mutate(type = "offline")
 on <- ne_on %>%
   select(month, ne_pos) %>%
   group_by(month, ne_pos) %>%
   count() %>%
-  spread(ne_pos, -month) %>%
+  mutate(n = ifelse(is.na(n), 0, n)) %>%
+  spread(key = ne_pos, value = n) %>%
   mutate(total = `1` + `2` + `99` + `<NA>`) %>%
-  mutate(skep_share_on = `1` / total) %>%
-  select(month, skep_share_on) %>%
-  rowid_to_column("id_on")
-comb <- off %>%
-  full_join(on, by = "month") %>%
-  gather(key = "type", value = "share", -month, -id_off, -id_on) %>%
-  mutate(type = case_when(type == "skep_share_off" ~ "offline",
-                          type == "skep_share_on" ~ "online")) %>%
-  mutate(id = case_when(type == "offline" ~ id_off,
-                        type == "online" ~ id_on))
+  mutate(skep_share = `1` / total) %>%
+  select(month, skep_share)  %>%
+  left_join(crawl_month, by = "month") %>%
+  mutate(type = "online")
+comb <- bind_rows(off, on)
 
 plt <- ggplot(data = comb) +
-  geom_point(aes(x = month, y = share, color = type)) +
-  geom_smooth(aes(x = id, y = share, color = type),
+  geom_point(aes(x = crawl, y = skep_share, color = type)) +
+  geom_smooth(aes(x = crawl, y = skep_share, color = type),
               method = "lm", se = FALSE) +
-  labs(y = "Share of skeptical actors [0,1]",
-       x = "Month") +
+  scale_x_continuous(breaks = 2:25, 
+                     minor_breaks = NULL,
+                     labels = crawl_month$month) +
+  labs(y = "Share of skeptical actors [0,1]") +
   theme_minimal() +
   scale_colour_brewer(palette = "Set1") +
   theme(legend.position = "bottom",
         legend.title = element_blank(),
-        axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))
+        axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1),
+        axis.title.x = element_blank())
+plt
 
 ggsave(plt, file = "plots/actor_trend.png", device = "png")
 ggsave(plt, file = "plots/actor_trend.pdf", device = "pdf")
 
 
+# prepare plots: individual newspaper level
+off_n <- ne_off %>%
+  left_join(select(data.offdata, d_id, newspaper), by = "d_id") %>%
+  select(newspaper, month, ne_pos) %>%
+  group_by(newspaper, month, ne_pos) %>%
+  count() %>%
+  mutate(n = ifelse(is.na(n), 0, n)) %>%
+  spread(key = ne_pos, value = n) %>%
+  mutate(total = `1` + `2` + `99` + `<NA>`) %>%
+  mutate(skep_share = `1` / total) %>%
+  mutate(skep_share = ifelse(is.na(skep_share), 0, skep_share)) %>%
+  left_join(crawl_month, by = "month") %>%
+  select(month, skep_share, crawl, type = newspaper)
+comb <- bind_rows(off, on, off_n)
 
+newsp <- unique(comb$type)
 
+for(i in 1:length(newsp)){
+  plt <- ggplot() +
+    geom_point(data = subset(comb, type == newsp[i]),
+               mapping = aes(x = crawl, y = skep_share, color = type)) +
+    geom_smooth(data = subset(comb, type == "online" | type == "offline" | type == newsp[i]),
+                mapping = aes(x = crawl, y = skep_share, color = type),
+                method = "lm", se = FALSE) +
+    scale_x_continuous(breaks = 2:25, 
+                       minor_breaks = NULL,
+                       labels = crawl_month$month) +
+    labs(y = "Share of skeptical actors [0,1]") +
+    theme_minimal() +
+    scale_colour_brewer(palette = "Set1") +
+    theme(legend.position = "bottom",
+          legend.title = element_blank(),
+          axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1),
+          axis.title.x = element_blank())
+  ggsave(plt, file = paste0("plots/actor_n/class_trend_", newsp[i], ".png"), device = "png")
+  ggsave(plt, file = paste0("plots/actor_n/class_trend_", newsp[i], ".pdf"), device = "pdf")
+}
