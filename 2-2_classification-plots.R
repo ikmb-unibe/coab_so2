@@ -21,7 +21,7 @@ right_media <- c("BILD", "BILD am Sonntag", "Die Welt", "FAZ", "FAZ am Sonntag",
 # prepare plots
 off <- off_sent_class %>%
   mutate(month = substr(as.character(date), 1, 7)) %>%
-  mutate(type = ifelse(newspaper %in% right_media, "Right-leaning media    ", "Other media    ")) %>%
+  mutate(type = ifelse(newspaper %in% right_media, " Right-leaning legacy edia    ", " Other legacy media    ")) %>%
   left_join(crawl_month, by = "month") %>%
   select(type, crawl, classification) %>%
   group_by(type, crawl, classification) %>%
@@ -44,17 +44,17 @@ on <- on_sent_de_class %>%
   mutate(irrelevant = ifelse(is.na(irrelevant), 0, irrelevant)) %>%
   mutate(total = Sceptics + Alarmists + irrelevant) %>%
   mutate(skep_share = Sceptics / total) %>%
-  mutate(type = "Online    ") %>%
+  mutate(type = " Websites of climate change skeptics    ") %>%
   select(type, crawl, skep_share)
 comb <- bind_rows(off, on) %>%
   ungroup() %>%
-  mutate(type = factor(type, levels = c("Online    ", "Right-leaning media    ", "Other media    ")))
+  mutate(type = factor(type, levels = c(" Websites of climate change skeptics    ", " Right-leaning legacy edia    ", " Other legacy media    ")))
 
 # make plot
 plt_pos <- ggplot() +
   geom_point(data = comb, mapping = aes(x = crawl, y = skep_share, color = type)) +
   geom_smooth(data = comb, mapping = aes(x = crawl, y = skep_share, color = type),
-              method = "lm", se = FALSE) +
+              method = "lm", se = TRUE) +
   scale_x_continuous(breaks = 2:25, 
                      minor_breaks = NULL,
                      labels = crawl_month$month) +

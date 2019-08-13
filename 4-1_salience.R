@@ -31,7 +31,7 @@ off_sal_r <- data.offdata %>%
 plt_sal <- ggplot() +
   geom_point(data = off_sal_r, mapping = aes(x = crawl, y = n_docs, color = type)) +
   geom_smooth(data = off_sal_r, mapping = aes(x = crawl, y = n_docs, color = type),
-              method = "lm", se = FALSE) +
+              method = "lm", se = TRUE) +
   scale_x_continuous(breaks = 2:25, 
                      minor_breaks = NULL,
                      labels = crawl_month$month) +

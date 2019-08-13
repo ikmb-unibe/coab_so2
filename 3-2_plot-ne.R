@@ -80,7 +80,7 @@ comb <- bind_rows(off, on)
 plt_act <- ggplot(data = comb) +
   geom_point(aes(x = crawl, y = skep_share, color = type)) +
   geom_smooth(aes(x = crawl, y = skep_share, color = type),
-              method = "lm", se = FALSE) +
+              method = "lm", se = TRUE) +
   scale_x_continuous(breaks = 2:25, 
                      minor_breaks = NULL,
                      labels = crawl_month$month) +

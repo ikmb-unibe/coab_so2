@@ -62,7 +62,7 @@ plt_thema <- ggplot(data = jsd_df) +
   theme_minimal() +
   geom_point(mapping = aes(x = month, y = jsd, color = type)) +
   geom_smooth(mapping = aes(x = month_c, y = jsd, color = type),
-              method = "lm", se = FALSE) +
+              method = "lm", se = TRUE) +
   labs(y = "Jensen-Shannon divergence [0,1]",
        x = "Month",
        title = "2. Thematic spill-over") +
