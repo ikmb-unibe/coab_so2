@@ -21,7 +21,7 @@ right_media <- c("BILD", "BILD am Sonntag", "Die Welt", "FAZ", "FAZ am Sonntag",
 # prepare plots
 off <- off_sent_class %>%
   mutate(month = substr(as.character(date), 1, 7)) %>%
-  mutate(type = ifelse(newspaper %in% right_media, " Right-leaning legacy media    ", " Other legacy media    ")) %>%
+  mutate(type = ifelse(newspaper %in% right_media, " Conservative legacy media    ", " Other legacy media    ")) %>%
   left_join(crawl_month, by = "month") %>%
   select(type, crawl, classification) %>%
   group_by(type, crawl, classification) %>%
@@ -48,7 +48,7 @@ on <- on_sent_de_class %>%
   select(type, crawl, skep_share)
 comb <- bind_rows(off, on) %>%
   ungroup() %>%
-  mutate(type = factor(type, levels = c(" Websites of climate change skeptics    ", " Right-leaning legacy media    ", " Other legacy media    ")))
+  mutate(type = factor(type, levels = c(" Websites of climate change skeptics    ", " Conservative legacy media    ", " Other legacy media    ")))
 
 # make plot
 plt_pos <- ggplot() +

@@ -19,8 +19,6 @@ crawl_month <- data.frame(crawl = 2:25,
                                     paste("2013", c("01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"), sep = "-"),
                                     paste("2014", c("01", "02", "03", "04", "05", "06"), sep = "-")))
 
-right_media <- c("BILD", "BILD am Sonntag", "Die Welt", "FAZ", "FAZ am Sonntag", "Financial Times Deutschland", "Focus", "Handelsblatt", "Welt am Sonntag")
-
 # proportion of individual topics over time in legacy media
 theta_time <- bind_rows(theta_off, theta_on) %>%
   group_by(type, month) %>%
@@ -46,6 +44,38 @@ case_plot <- ggplot(data = theta_time) +
 # save case plot
 ggsave(case_plot, file = "plots/case_plot.pdf", device = "pdf", width = 12)
 ggsave(case_plot, file = "plots/case_plot.png", device = "png", width = 12)
+
+# check right-leaning media
+right_media <- c("BILD", "BILD am Sonntag", "Die Welt", "FAZ", "FAZ am Sonntag", "Financial Times Deutschland", "Focus", "Handelsblatt", "Welt am Sonntag")
+
+# proportion of individual topics over time in legacy media
+theta_time <- bind_rows(theta_off, theta_on) %>%
+  ungroup() %>%
+  mutate(type = case_when(actor %in% right_media ~ "Conservatice legacy media",
+                          type == "on" ~ "Online",
+                          TRUE ~ "Other media")) %>%
+  filter(type != "Other media") %>%
+  group_by(type, month) %>%
+  summarise_if(is.numeric, list(mean)) %>%
+  gather(key = "topic", value = "prob", -type, - month) %>%
+  left_join(select(labels, -topwords), by = c("topic" = "t_id")) %>%
+  mutate(t_label = paste(topic, label))
+
+case_plot_right <- ggplot(data = theta_time) +
+  theme_minimal() +
+  geom_line(mapping = aes(x = month,
+                          y = prob,
+                          group = topic,
+                          color = label)) +
+  labs(y = "Mean topic probability",
+       x = "Month", color = "Topic") +
+  facet_wrap(~ type) + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1),
+        legend.title = element_text(size = 12, face = "bold"),
+        legend.text = element_text(size = 12),
+        strip.text.x = element_text(size = 12, face = "bold"))
+
+case_plot_right
 
 # Prepare classification data
 off_pos <- off_sent_class %>%
