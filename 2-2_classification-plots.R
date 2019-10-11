@@ -59,7 +59,7 @@ plt_pos <- ggplot() +
                      minor_breaks = NULL,
                      labels = crawl_month$month) +
   labs(y = "Share of skeptical sentences [0,1]",
-       title = "3. Positional spill-over") +
+       title = "3. Positional spillover") +
   theme_minimal() +
   scale_colour_manual(values = c("#4daf4a", "#377eb8", "#e41a1c")) +
   theme(legend.position = "bottom",

@@ -85,7 +85,7 @@ plt_act <- ggplot(data = comb) +
                      minor_breaks = NULL,
                      labels = crawl_month$month) +
   labs(y = "Share of skeptical actors [0,1]",
-       title = "4. Actor spill-over") +
+       title = "4. Actor spillover") +
   theme_minimal() +
   scale_colour_manual(values = c("#4daf4a", "#e41a1c", "#377eb8")) +
   theme(legend.position = "bottom",
