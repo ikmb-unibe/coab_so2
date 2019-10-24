@@ -44,6 +44,7 @@ case_plot <- ggplot(data = theta_time) +
 # save case plot
 ggsave(case_plot, file = "plots/case_plot.pdf", device = "pdf", width = 12)
 ggsave(case_plot, file = "plots/case_plot.png", device = "png", width = 12)
+ggsave(case_plot, file = "plots/case_plot.tif", device = "tiff", width = 12)
 
 # check right-leaning media
 right_media <- c("BILD", "BILD am Sonntag", "Die Welt", "FAZ", "FAZ am Sonntag", "Financial Times Deutschland", "Focus", "Handelsblatt", "Welt am Sonntag")

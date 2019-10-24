@@ -30,3 +30,4 @@ p_grid <- grid.arrange(arrangeGrob(plt_sal + theme(legend.position = "none"),
 # save grid plot
 ggsave(p_grid, file = "plots/grid_final.pdf", device = "pdf", width = 11, height = 9)
 ggsave(p_grid, file = "plots/grid_final.png", device = "png", width = 11, height = 9)
+ggsave(p_grid, file = "plots/grid_final.tif", device = "tiff", width = 11, height = 9)
