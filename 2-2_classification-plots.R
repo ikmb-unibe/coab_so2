@@ -50,7 +50,7 @@ comb <- bind_rows(off, on) %>%
   ungroup() %>%
   mutate(type = factor(type, levels = c(" Websites of climate change skeptics    ", " Conservative legacy media    ", " Other legacy media    ")))
 
-# make plot
+# initial idea: plot
 plt_pos <- ggplot() +
   geom_point(data = comb, mapping = aes(x = crawl, y = skep_share, color = type)) +
   geom_smooth(data = comb, mapping = aes(x = crawl, y = skep_share, color = type),
@@ -69,6 +69,47 @@ plt_pos <- ggplot() +
         axis.title.x = element_blank())
 
 plt_pos
+
+
+# new idea: plot
+comb_dist <-  comb %>% 
+  spread(type, skep_share) %>%
+  rename_all(funs(c("crawl", "skeptics", "cons_media", "oth_media"))) %>%
+  mutate(dist_cons = skeptics - cons_media) %>%
+  mutate(dist_oth = skeptics - oth_media)
+
+dist_plot <- comb_dist %>%
+  select(crawl, dist_cons, dist_oth) %>%
+  gather(key = "type", value = "dist", -crawl) %>%
+  mutate(type = case_when(type == "dist_cons" ~ " Conservative legacy media    ",
+                          type == "dist_oth" ~ " Other legacy media    ")) %>%
+  mutate(type = factor(type, levels = c(" Conservative legacy media    ", " Other legacy media    ")))
+
+plt_pos_new <- ggplot() +
+  geom_point(data = dist_plot, mapping = aes(x = crawl, y = dist, color = type)) +
+  geom_smooth(data = dist_plot, mapping = aes(x = crawl, y = dist, color = type),
+              method = "lm", se = TRUE, na.rm = TRUE) +
+  scale_x_continuous(breaks = 2:25, 
+                     minor_breaks = NULL,
+                     labels = crawl_month$month) +
+  labs(y = "Difference to websites of climate change skeptics [0,1]",
+       title = "3. Positional spillover") +
+  theme_minimal() +
+  scale_colour_manual(values = c("#377eb8", "#e41a1c")) +
+  theme(legend.position = "bottom",
+        legend.title = element_blank(),
+        legend.text = element_text(size = 12),
+        axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1),
+        axis.title.x = element_blank())
+
+plt_pos_new
+
+# calculate regression
+fit_oth <- lm(dist_oth ~ crawl, data = comb_dist, na.action = na.omit)
+summary(fit_oth)
+
+fit_cons <- lm(dist_cons ~ crawl, data = comb_dist, na.action = na.omit)
+summary(fit_cons)
 
 # make simplified plot for presentation
 

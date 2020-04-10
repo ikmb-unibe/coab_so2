@@ -62,7 +62,7 @@ plt_thema <- ggplot(data = jsd_df) +
   theme_minimal() +
   geom_point(mapping = aes(x = month, y = jsd, color = type)) +
   geom_smooth(mapping = aes(x = month_c, y = jsd, color = type),
-              method = "lm", se = TRUE) +
+              method = "lm", se = TRUE, na.rm = TRUE) +
   labs(y = "Jensen-Shannon divergence [0,1]",
        x = "Month",
        title = "2. Thematic spillover") +
@@ -73,6 +73,13 @@ plt_thema <- ggplot(data = jsd_df) +
         axis.title.x = element_blank())
 
 plt_thema
+
+# calculate regression
+fit_oth <- lm(jsd ~ month_c, data = jsd_df_2, na.action = na.omit)
+summary(fit_oth)
+
+fit_cons <- lm(jsd ~ month_c, data = jsd_df_3, na.action = na.omit)
+summary(fit_cons)
 
 # make simplified plot for presentation
 

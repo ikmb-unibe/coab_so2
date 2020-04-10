@@ -77,6 +77,7 @@ on <- ne_on %>%
   mutate(type = "Online")
 comb <- bind_rows(off, on)
 
+# initial idea: plot
 plt_act <- ggplot(data = comb) +
   geom_point(aes(x = crawl, y = skep_share, color = type)) +
   geom_smooth(aes(x = crawl, y = skep_share, color = type),
@@ -94,6 +95,46 @@ plt_act <- ggplot(data = comb) +
         axis.title.x = element_blank())
 
 plt_act
+
+# new idea: plot
+comb_dist <-  comb %>% 
+  spread(type, skep_share) %>%
+  rename_all(funs(c("month", "crawl", "skeptics", "oth_media", "cons_media"))) %>%
+  mutate(dist_cons = skeptics - cons_media) %>%
+  mutate(dist_oth = skeptics - oth_media)
+
+dist_plot <- comb_dist %>%
+  ungroup() %>%
+  select(crawl, dist_cons, dist_oth) %>%
+  gather(key = "type", value = "dist", -crawl) %>%
+  mutate(type = case_when(type == "dist_cons" ~ " Conservative legacy media    ",
+                          type == "dist_oth" ~ " Other legacy media    ")) %>%
+  mutate(type = factor(type, levels = c(" Conservative legacy media    ", " Other legacy media    ")))
+
+plt_act_new <- ggplot(data = dist_plot) +
+  geom_point(aes(x = crawl, y = dist, color = type)) +
+  geom_smooth(aes(x = crawl, y = dist, color = type),
+              method = "lm", se = TRUE, na.rm = TRUE) +
+  scale_x_continuous(breaks = 2:25, 
+                     minor_breaks = NULL,
+                     labels = crawl_month$month) +
+  labs(y = "Difference to websites of climate change skeptics [0,1]",
+       title = "4. Actor spillover") +
+  theme_minimal() +
+  scale_colour_manual(values = c("#377eb8", "#e41a1c")) +
+  theme(legend.position = "bottom",
+        legend.title = element_blank(),
+        axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1),
+        axis.title.x = element_blank())
+
+plt_act_new
+
+# calculate regression
+fit_oth <- lm(dist_oth ~ crawl, data = comb_dist, na.action = na.omit)
+summary(fit_oth)
+
+fit_cons <- lm(dist_cons ~ crawl, data = comb_dist, na.action = na.omit)
+summary(fit_cons)
 
 # make simplified plot for presentation
 
