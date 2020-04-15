@@ -50,16 +50,14 @@ comb <- bind_rows(off, on) %>%
   ungroup() %>%
   mutate(type = factor(type, levels = c(" Websites of climate change skeptics    ", " Conservative legacy media    ", " Other legacy media    ")))
 
-# initial idea: plot
+# occasional spillover plot
 plt_pos <- ggplot() +
   geom_point(data = comb, mapping = aes(x = crawl, y = skep_share, color = type)) +
-  geom_smooth(data = comb, mapping = aes(x = crawl, y = skep_share, color = type),
-              method = "lm", se = TRUE) +
   scale_x_continuous(breaks = 2:25, 
                      minor_breaks = NULL,
                      labels = crawl_month$month) +
   labs(y = "Share of skeptical sentences [0,1]",
-       title = "3. Positional spillover") +
+       title = "2. Positional spillover") +
   theme_minimal() +
   scale_colour_manual(values = c("#4daf4a", "#377eb8", "#e41a1c")) +
   theme(legend.position = "bottom",
@@ -70,8 +68,7 @@ plt_pos <- ggplot() +
 
 plt_pos
 
-
-# new idea: plot
+# continuous spillover plot
 comb_dist <-  comb %>% 
   spread(type, skep_share) %>%
   rename_all(funs(c("crawl", "skeptics", "cons_media", "oth_media"))) %>%
@@ -85,14 +82,25 @@ dist_plot <- comb_dist %>%
                           type == "dist_oth" ~ " Other legacy media    ")) %>%
   mutate(type = factor(type, levels = c(" Conservative legacy media    ", " Other legacy media    ")))
 
+# calculate regression
+fit_oth <- lm(dist_oth ~ crawl, data = comb_dist, na.action = na.omit)
+summary(fit_oth)
+
+fit_cons <- lm(dist_cons ~ crawl, data = comb_dist, na.action = na.omit)
+summary(fit_cons)
+
 plt_pos_new <- ggplot() +
   geom_point(data = dist_plot, mapping = aes(x = crawl, y = dist, color = type)) +
-  geom_smooth(data = dist_plot, mapping = aes(x = crawl, y = dist, color = type),
-              method = "lm", se = TRUE, na.rm = TRUE) +
+  geom_abline(intercept = summary(fit_oth)$coefficients[1,1],
+              slope = summary(fit_oth)$coefficients[2,1],
+              color = "#e41a1c", size = 1) +
+  geom_abline(intercept = summary(fit_cons)$coefficients[1,1],
+              slope = summary(fit_cons)$coefficients[2,1],
+              color = "#377eb8", size = 1) +
   scale_x_continuous(breaks = 2:25, 
                      minor_breaks = NULL,
                      labels = crawl_month$month) +
-  labs(y = "Difference to websites of climate change skeptics [0,1]",
+  labs(y = "Difference of skeptical sentences rates on-/offline [0,1]",
        title = "3. Positional spillover") +
   theme_minimal() +
   scale_colour_manual(values = c("#377eb8", "#e41a1c")) +
@@ -103,13 +111,6 @@ plt_pos_new <- ggplot() +
         axis.title.x = element_blank())
 
 plt_pos_new
-
-# calculate regression
-fit_oth <- lm(dist_oth ~ crawl, data = comb_dist, na.action = na.omit)
-summary(fit_oth)
-
-fit_cons <- lm(dist_cons ~ crawl, data = comb_dist, na.action = na.omit)
-summary(fit_cons)
 
 # make simplified plot for presentation
 

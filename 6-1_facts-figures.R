@@ -17,6 +17,12 @@ n_distinct(pages$organisation)
 pages %>%
   filter(duplicate == 0) %>%
   summarise(n_distinct(d_id))
+
+# Number of unique web pages by German acctors in online data
+pages %>%
+  filter(duplicate == 0) %>%
+  filter(actor_country != 1) %>%
+  summarise(n_distinct(d_id))
   
 # Number of national (i.e., German actors)
 pages %>%
@@ -32,6 +38,12 @@ pages %>%
 pages %>%
   group_by(actor_type) %>%
   summarise(n_distinct(organisation))
+
+# Number of unique web pages by different types
+pages %>%
+  filter(duplicate == 0) %>%
+  group_by(actor_type) %>%
+  summarise(n_distinct(d_id))
 
 # Number of different newspaper/magazines
 n_distinct(data.offdata$newspaper)

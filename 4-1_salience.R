@@ -27,11 +27,22 @@ off_sal_r <- data.offdata %>%
   summarise(n_docs = n_distinct(d_id)) %>%
   select(crawl, month, n_docs, type = right)
 
+# calculate regression
+fit_oth <- lm(n_docs ~ crawl, data = subset(off_sal_r, type == "Other media"), na.action = na.omit)
+summary(fit_oth)
+
+fit_cons <- lm(n_docs ~ crawl, data = subset(off_sal_r, type == "Right-leaning media"), na.action = na.omit)
+summary(fit_cons)
+
 # make plot
 plt_sal <- ggplot() +
   geom_point(data = off_sal_r, mapping = aes(x = crawl, y = n_docs, color = type)) +
-  geom_smooth(data = off_sal_r, mapping = aes(x = crawl, y = n_docs, color = type),
-              method = "lm", se = TRUE) +
+  geom_abline(intercept = summary(fit_oth)$coefficients[1,1],
+              slope = summary(fit_oth)$coefficients[2,1],
+              color = "#e41a1c", size = 1) +
+  geom_abline(intercept = summary(fit_cons)$coefficients[1,1],
+              slope = summary(fit_cons)$coefficients[2,1],
+              color = "#377eb8", size = 1) +
   scale_x_continuous(breaks = 2:25, 
                      minor_breaks = NULL,
                      labels = crawl_month$month) +

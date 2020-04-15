@@ -54,6 +54,13 @@ jsd_df_3 <- data.frame(month = as.character(names(theta_comp[[1]])[3:ncol(theta_
                        month_c = 1:(ncol(theta_comp[[1]]) - 2),
                        type = unique(theta_comp[[3]]$type))
 
+# calculate regression
+fit_oth <- lm(jsd ~ month_c, data = jsd_df_2, na.action = na.omit)
+summary(fit_oth)
+
+fit_cons <- lm(jsd ~ month_c, data = jsd_df_3, na.action = na.omit)
+summary(fit_cons)
+
 # combine data sets for plot
 jsd_df <- bind_rows(jsd_df_2, jsd_df_3)
 
@@ -61,8 +68,12 @@ jsd_df <- bind_rows(jsd_df_2, jsd_df_3)
 plt_thema <- ggplot(data = jsd_df) +
   theme_minimal() +
   geom_point(mapping = aes(x = month, y = jsd, color = type)) +
-  geom_smooth(mapping = aes(x = month_c, y = jsd, color = type),
-              method = "lm", se = TRUE, na.rm = TRUE) +
+  geom_abline(intercept = summary(fit_oth)$coefficients[1,1],
+              slope = summary(fit_oth)$coefficients[2,1],
+              color = "#e41a1c", size = 1) +
+  geom_abline(intercept = summary(fit_cons)$coefficients[1,1],
+              slope = summary(fit_cons)$coefficients[2,1],
+              color = "#377eb8", size = 1) +
   labs(y = "Jensen-Shannon divergence [0,1]",
        x = "Month",
        title = "2. Thematic spillover") +
@@ -73,13 +84,6 @@ plt_thema <- ggplot(data = jsd_df) +
         axis.title.x = element_blank())
 
 plt_thema
-
-# calculate regression
-fit_oth <- lm(jsd ~ month_c, data = jsd_df_2, na.action = na.omit)
-summary(fit_oth)
-
-fit_cons <- lm(jsd ~ month_c, data = jsd_df_3, na.action = na.omit)
-summary(fit_cons)
 
 # make simplified plot for presentation
 
