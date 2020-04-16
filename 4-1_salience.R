@@ -34,7 +34,7 @@ summary(fit_oth)
 fit_cons <- lm(n_docs ~ crawl, data = subset(off_sal_r, type == "Right-leaning media"), na.action = na.omit)
 summary(fit_cons)
 
-# make plot
+# Plot: 1. Salience
 plt_sal <- ggplot() +
   geom_point(data = off_sal_r, mapping = aes(x = crawl, y = n_docs, color = type)) +
   geom_abline(intercept = summary(fit_oth)$coefficients[1,1],
@@ -47,7 +47,7 @@ plt_sal <- ggplot() +
                      minor_breaks = NULL,
                      labels = crawl_month$month) +
   labs(y = "Number of articles", 
-       title = "1. Salience of climate change in legacy media") +
+       title = "1. Salience") +
   theme_minimal() +
   scale_colour_brewer(palette = "Set1") +
   theme(legend.position = "none",

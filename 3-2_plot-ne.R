@@ -77,14 +77,30 @@ on <- ne_on %>%
   mutate(type = "Online")
 comb <- bind_rows(off, on)
 
-# occasional spillover plot
-plt_act <- ggplot(data = comb) +
+# Plot: 5. Actor spillover: share
+fit_oth <- lm(skep_share ~ crawl, data = subset(comb, type == "Other media"), na.action = na.omit)
+summary(fit_oth)
+fit_cons <- lm(skep_share ~ crawl, data = subset(comb, type == "Right-leaning media"), na.action = na.omit)
+summary(fit_cons)
+fit_on <- lm(skep_share ~ crawl, data = subset(comb, type == "Online"), na.action = na.omit)
+summary(fit_on)
+
+plt_act_share <- ggplot(data = comb) +
   geom_point(aes(x = crawl, y = skep_share, color = type)) +
+  geom_abline(intercept = summary(fit_oth)$coefficients[1,1],
+              slope = summary(fit_oth)$coefficients[2,1],
+              color = "#e41a1c", size = 1) +
+  geom_abline(intercept = summary(fit_cons)$coefficients[1,1],
+              slope = summary(fit_cons)$coefficients[2,1],
+              color = "#377eb8", size = 1) +
+  geom_abline(intercept = summary(fit_on)$coefficients[1,1],
+              slope = summary(fit_on)$coefficients[2,1],
+              color = "#4daf4a", size = 1) +
   scale_x_continuous(breaks = 2:25, 
                      minor_breaks = NULL,
                      labels = crawl_month$month) +
   labs(y = "Share of skeptical actors [0,1]",
-       title = "3. Actor spillover") +
+       title = "5. Actor spillover: share") +
   theme_minimal() +
   scale_colour_manual(values = c("#4daf4a", "#e41a1c", "#377eb8")) +
   theme(legend.position = "bottom",
@@ -92,9 +108,9 @@ plt_act <- ggplot(data = comb) +
         axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1),
         axis.title.x = element_blank())
 
-plt_act
+plt_act_share
 
-# continuous spillover plot
+# Plot: 6. Actor spillover: divergence
 comb_dist <-  comb %>% 
   spread(type, skep_share) %>%
   rename_all(funs(c("month", "crawl", "skeptics", "oth_media", "cons_media"))) %>%
@@ -109,14 +125,13 @@ dist_plot <- comb_dist %>%
                           type == "dist_oth" ~ " Other legacy media    ")) %>%
   mutate(type = factor(type, levels = c(" Conservative legacy media    ", " Other legacy media    ")))
 
-# calculate regression
 fit_oth <- lm(dist_oth ~ crawl, data = comb_dist, na.action = na.omit)
 summary(fit_oth)
 
 fit_cons <- lm(dist_cons ~ crawl, data = comb_dist, na.action = na.omit)
 summary(fit_cons)
 
-plt_act_new <- ggplot(data = dist_plot) +
+plt_act_div <- ggplot(data = dist_plot) +
   geom_point(aes(x = crawl, y = dist, color = type)) +
   geom_abline(intercept = summary(fit_oth)$coefficients[1,1],
               slope = summary(fit_oth)$coefficients[2,1],
@@ -127,8 +142,8 @@ plt_act_new <- ggplot(data = dist_plot) +
   scale_x_continuous(breaks = 2:25, 
                      minor_breaks = NULL,
                      labels = crawl_month$month) +
-  labs(y = "Difference of skeptical actors rates on-/offline [0,1]",
-       title = "4. Actor spillover") +
+  labs(y = "Divergence of skeptical actors [0,1]",
+       title = "6. Actor spillover: divergence") +
   theme_minimal() +
   scale_colour_manual(values = c("#377eb8", "#e41a1c")) +
   theme(legend.position = "bottom",
@@ -136,7 +151,7 @@ plt_act_new <- ggplot(data = dist_plot) +
         axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1),
         axis.title.x = element_blank())
 
-plt_act_new
+plt_act_div
 
 # make simplified plot for presentation
 

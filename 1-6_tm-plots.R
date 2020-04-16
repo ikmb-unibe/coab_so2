@@ -64,7 +64,7 @@ summary(fit_cons)
 # combine data sets for plot
 jsd_df <- bind_rows(jsd_df_2, jsd_df_3)
 
-# make plot for publication
+# Plot: 2. Thematic spillover: divergence
 plt_thema <- ggplot(data = jsd_df) +
   theme_minimal() +
   geom_point(mapping = aes(x = month, y = jsd, color = type)) +
@@ -76,7 +76,7 @@ plt_thema <- ggplot(data = jsd_df) +
               color = "#377eb8", size = 1) +
   labs(y = "Jensen-Shannon divergence [0,1]",
        x = "Month",
-       title = "2. Thematic spillover") +
+       title = "2. Thematic spillover: divergence") +
   theme_minimal() +
   scale_colour_brewer(palette = "Set1") +
   theme(legend.position = "none",
