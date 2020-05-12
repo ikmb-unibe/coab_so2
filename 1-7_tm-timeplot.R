@@ -34,8 +34,7 @@ plot_theta_time <- ggplot(data = theta_time) +
                           group = topic,
                           color = label)) +
   labs(y = "Mean frame proportion",
-       x = "Month", color = "Frame",
-       title = "Thematic spillover: frame agenda") +
+       x = "Month", color = "Frame") +
   facet_wrap(~ type, labeller = as_labeller(c("on" = "Websites of climate change skeptics", "off" = "Legacy media"))) + 
   scale_colour_manual(values = rev(c("#a6cee3", "#1f78b4", "#b2df8a", "#33a02c", "#fb9a99", "#e31a1c", "#fdbf6f", "#ff7f00", "#cab2d6",
                                  "#6a3d9a", "#ffff99", "#b15928", "#1b9e77", "#d95f02"))) +
@@ -47,9 +46,9 @@ plot_theta_time <- ggplot(data = theta_time) +
 plot_theta_time
 
 # save case plot
-ggsave(plot_theta_time, file = "plots/tm_time.pdf", device = "pdf", width = 11)
-ggsave(plot_theta_time, file = "plots/tm_time.png", device = "png", width = 11)
-ggsave(plot_theta_time, file = "plots/tm_time.tif", device = "tiff", width = 11)
+ggsave(plot_theta_time, file = "plots/Fig3.pdf", device = "pdf", width = 11)
+ggsave(plot_theta_time, file = "plots/Fig3.png", device = "png", width = 11)
+ggsave(plot_theta_time, file = "plots/Fig3.tif", device = "tiff", width = 11)
 
 # check right-leaning media
 right_media <- c("BILD", "BILD am Sonntag", "Die Welt", "FAZ", "FAZ am Sonntag", "Financial Times Deutschland", "Focus", "Handelsblatt", "Welt am Sonntag")

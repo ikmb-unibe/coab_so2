@@ -100,7 +100,7 @@ plt_act_share <- ggplot(data = comb) +
                      minor_breaks = NULL,
                      labels = crawl_month$month) +
   labs(y = "Share of skeptical actors [0,1]",
-       title = "5. Actor spillover: share") +
+       title = "E. Actor resonance: share") +
   theme_minimal() +
   scale_colour_manual(values = c("#4daf4a", "#e41a1c", "#377eb8")) +
   theme(legend.position = "bottom",
@@ -143,7 +143,7 @@ plt_act_div <- ggplot(data = dist_plot) +
                      minor_breaks = NULL,
                      labels = crawl_month$month) +
   labs(y = "Divergence of skeptical actors [0,1]",
-       title = "6. Actor spillover: divergence") +
+       title = "F. Actor resonance: divergence") +
   theme_minimal() +
   scale_colour_manual(values = c("#377eb8", "#e41a1c")) +
   theme(legend.position = "bottom",

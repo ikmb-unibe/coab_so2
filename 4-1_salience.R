@@ -47,7 +47,7 @@ plt_sal <- ggplot() +
                      minor_breaks = NULL,
                      labels = crawl_month$month) +
   labs(y = "Number of articles", 
-       title = "1. Salience") +
+       title = "A. Salience") +
   theme_minimal() +
   scale_colour_brewer(palette = "Set1") +
   theme(legend.position = "none",

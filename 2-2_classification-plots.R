@@ -73,7 +73,7 @@ plt_pos_share <- ggplot() +
                      minor_breaks = NULL,
                      labels = crawl_month$month) +
   labs(y = "Share of skeptical sentences [0,1]",
-       title = "3. Positional spillover: share") +
+       title = "C. Positional resonance: share") +
   theme_minimal() +
   scale_colour_manual(values = c("#4daf4a", "#377eb8", "#e41a1c")) +
   theme(legend.position = "bottom",
@@ -116,7 +116,7 @@ plt_pos_div <- ggplot() +
                      minor_breaks = NULL,
                      labels = crawl_month$month) +
   labs(y = "Divergence of skeptical sentence [0,1]",
-       title = "4. Positional spillover: divergence") +
+       title = "D. Positional resonance: divergence") +
   theme_minimal() +
   scale_colour_manual(values = c("#377eb8", "#e41a1c")) +
   theme(legend.position = "bottom",

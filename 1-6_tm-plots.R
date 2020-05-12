@@ -76,7 +76,7 @@ plt_thema <- ggplot(data = jsd_df) +
               color = "#377eb8", size = 1) +
   labs(y = "Jensen-Shannon divergence [0,1]",
        x = "Month",
-       title = "2. Thematic spillover: divergence") +
+       title = "B. Thematic resonance: divergence") +
   theme_minimal() +
   scale_colour_brewer(palette = "Set1") +
   theme(legend.position = "none",
